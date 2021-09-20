@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>sorivio</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
+              integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    </head>
+    <body>
+        <div class="container mt-5">
+            <div class="row justify-content-center">
+                <div class="p-5 mb-4 bg-light rounded-3">
+                    <div class="text-center">
+                        <h1 class="display-4 fw-bold mb-4">sorivio</h1>
+                        <h6 class="text-muted text-monospace">Cuadrante de multiplicaciones dinámico AJAX</h6>
+                        <h6 class="text-muted text-monospace">Procesamiento en entorno servidor con servlet</h6>
+                        <h6 class="text-muted text-monospace">Respuesta json en bloque</h6>
+                        <h6 class="text-muted text-monospace">Con formulario generador de tabla. Petición AJAX con jQuery.</h6>
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-4 mx-auto">
+                    <form class="mt-4">
+                        <div class="form-group form-row">
+                            <label for="ancho">Ancho: </label>
+                            <input type="text" id="ancho" name="ancho" value="10" class="form-control" placeholder="Introduce un número del 1 al 30" />
+                        </div>
+                        <div class="form-group form-row mt-2">
+                            <label for="alto">Alto: </label>
+                            <input type="text"  id="alto" name="alto" value="10" class="form-control" placeholder="Introduce un número del 1 al 30" />
+                        </div>
+                        <input class="btn btn-primary mt-4" type="submit" value="Enviar (append)" name="submit" id="enviar1" />
+                        <input class="btn btn-primary mt-4" type="submit" value="Enviar (html)" name="submit" id="enviar2" />
+                        <input class="btn btn-danger mt-4" type="submit" value="Borrar" name="submit" id="borrar" />
+                    </form>
+                </div>
+            </div>
+            <div class="row justify-content-center" id="tabla">
+
+
+            </div>
+        </div>
+        <script type="text/javascript">
+            $(document).ready(function () {
+                $("#enviar1").click(function () { //When you append, you should be appending an entire, complete, closed set of tags. It doesn't work like a stringbuilder. 
+                    $("#tabla").empty();
+                    alto = $("#alto").val();
+                    ancho = $("#ancho").val();
+                    $.ajax({
+                        url: "/sorivio/control?alto=" + alto + "&ancho=" + ancho,
+                        type: "GET",
+                        // sin dataType: "json" se recibe texto y hay que parsear
+                        success: function (source) {
+                            $("#tabla").append('<table class="table table-bordered table-success table-striped mx-auto mt-5" id="t"></table>');
+                            JSON.parse(source).forEach(function (Row, index) {
+                                $("#t").append(`<tr id="row${index}"></tr>`);
+                                Row.forEach(function (Cell) {
+                                    $(`#row${index}`).append('<td class="text-center">' + Cell + "</td>");
+                                })
+                            })
+                        }
+                    });
+                    return false;
+                });
+                $("#enviar2").click(function () {
+                    $("#tabla").empty();
+                    alto = $("#alto").val();
+                    ancho = $("#ancho").val();
+                    $.ajax({
+                        url: "/sorivio/control?alto=" + alto + "&ancho=" + ancho,
+                        type: "GET",
+                        dataType: "json",
+                        success: function (source) {
+                            table = '<table class="table table-bordered table-success table-striped mx-auto mt-5">';
+                            source.forEach(function (Row) {
+                                table += '<tr>';
+                                Row.forEach(function (Cell) {
+                                    table += '<td class="text-center">' + Cell + "</td>"
+                                })
+                                table += '</tr>';
+                            })
+                            table += '</table>';
+                            $("#tabla").html(table);
+                        }
+                    });
+                    return false;
+                });
+                $("#borrar").click(function () {
+                    $("#tabla").empty();
+                    return false;
+                });
+            });
+        </script>
+    </body>
+</html>
