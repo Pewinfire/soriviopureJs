@@ -44,53 +44,95 @@
             </div>
         </div>
         <script type="text/javascript">
-            $(document).ready(function () {
-                $("#enviar1").click(function () { //When you append, you should be appending an entire, complete, closed set of tags. It doesn't work like a stringbuilder. 
+
+            document.addEventListener("DOMContentLoaded", function () {
+                document.getElementById("enviar1").onclick = function () {
                     $("#tabla").empty();
-                    alto = $("#alto").val();
-                    ancho = $("#ancho").val();
-                    $.ajax({
-                        url: "/sorivio/control?alto=" + alto + "&ancho=" + ancho,
-                        type: "GET",
-                        // sin dataType: "json" se recibe texto y hay que parsear
-                        success: function (source) {
-                            $("#tabla").append('<table class="table table-bordered table-success table-striped mx-auto mt-5" id="t"></table>');
-                            JSON.parse(source).forEach(function (Row, index) {
-                                $("#t").append(`<tr id="row${index}"></tr>`);
-                                Row.forEach(function (Cell) {
-                                    $(`#row${index}`).append('<td class="text-center">' + Cell + "</td>");
-                                })
-                            })
+
+                    var alto = document.querySelector("#alto").value;
+                    var ancho = document.querySelector("#ancho").value;
+
+
+                    var xmlhttp = new XMLHttpRequest();
+
+                    xmlhttp.onreadystatechange = function () {
+                        if (xmlhttp.readyState === XMLHttpRequest.DONE) {
+                            // XMLHttpRequest.DONE == 4
+                            if (xmlhttp.status === 200) {
+                                document.querySelector('#tabla').insertAdjacentHTML("beforeend", '<table class="table table-bordered table-success table-striped mx-auto mt-5" id="tab" ></table>');
+                                var matrizs = JSON.parse(xmlhttp.responseText);
+
+                                matrizs.forEach(function (Row, i) {
+                                    document.querySelector('#tab').insertAdjacentHTML("beforeend", `<tr id="row${i}"></tr>`);
+
+                                    Row.forEach(function (Cell) {
+                                        document.querySelector(`#row${i}`).insertAdjacentHTML("beforeend", '<td class="text-center">' + Cell + "</td>");
+
+                                    });
+
+                                });
+
+
+                            } else if (xmlhttp.status === 400) {
+                                alert("There was an error 400");
+                            } else {
+                                alert("something else other than 200 was returned");
+                            }
                         }
-                    });
+                    };
+
+                    xmlhttp.open("GET", "/sorivio/control?alto=" + alto + "&ancho=" + ancho, true);
+                    xmlhttp.send();
+
                     return false;
-                });
-                $("#enviar2").click(function () {
-                    $("#tabla").empty();
-                    alto = $("#alto").val();
-                    ancho = $("#ancho").val();
-                    $.ajax({
-                        url: "/sorivio/control?alto=" + alto + "&ancho=" + ancho,
-                        type: "GET",
-                        dataType: "json",
-                        success: function (source) {
-                            table = '<table class="table table-bordered table-success table-striped mx-auto mt-5">';
-                            source.forEach(function (Row) {
-                                table += '<tr>';
-                                Row.forEach(function (Cell) {
-                                    table += '<td class="text-center">' + Cell + "</td>"
-                                })
-                                table += '</tr>';
-                            })
-                            table += '</table>';
-                            $("#tabla").html(table);
+                };
+                document.getElementById("enviar2").onclick = function () {
+                    var table = document.getElementById("tabla");
+                    while (table.firstChild) {
+                        table.removeChild(table.firstChild);
+                    }
+                    var alto = document.querySelector("#alto").value;
+                    var ancho = document.querySelector("#ancho").value;
+
+
+                    var xmlhttp = new XMLHttpRequest();
+
+                    xmlhttp.onreadystatechange = function () {
+                        if (xmlhttp.readyState === XMLHttpRequest.DONE) {
+                            // XMLHttpRequest.DONE == 4
+                            if (xmlhttp.status === 200) {
+                                table = '<table class="table table-bordered table-success table-striped mx-auto mt-5">';
+                                var matrizs = JSON.parse(xmlhttp.responseText);
+
+                                  matrizs.forEach(function (Row)  {
+                                    table += "<tr>";
+                                  
+                                     Row.forEach(function (Cell) {
+                                        table += '<td class="text-center">' + Cell + "</td>";
+                                        ;
+                                    });
+                                    table += "</tr>";
+                                });
+                                table += "</table>";
+                                document.querySelector("#tabla").innerHTML += table;
+                            } else if (xmlhttp.status === 400) {
+                                alert("There was an error 400");
+                            } else {
+                                alert("something else other than 200 was returned");
+                            }
                         }
-                    });
+                    };
+
+                    xmlhttp.open("GET", "/sorivio/control?alto=" + alto + "&ancho=" + ancho, true);
+                    xmlhttp.send();
+
                     return false;
-                });
-                $("#borrar").click(function () {
-                    $("#tabla").empty();
-                    return false;
+                };
+                document.querySelector("#borrar").addEventListener("click", function () {
+                    let table = document.getElementById("tabla");
+                    while (table.firstChild) {
+                        table.removeChild(table.firstChild);
+                    }
                 });
             });
         </script>
